@@ -1,72 +1,15 @@
-# GoogleDrivePWA V0.4
+# GoogleDrivePWA V0.5
 
-Google Drive PWA File Manager，可部署於 GitHub Pages。
+## V0.5 更新重點
 
-## V0.4 更新重點
-
-- 程式版本 `APP_VERSION` 改為與 ZIP 檔版本一致，例如 `V0.4`。
-- Settings 顯示：
-  - 目前執行版本
-  - 本機 PWA Cache 版本
-  - GitHub 最新版本
-- Settings 新增 `GitHub version.json URL`，儲存在使用者本機 localStorage。
-- 按下「檢查更新並自動套用」後，程式會：
-  1. 讀取 GitHub 上的 `version.json`
-  2. 比對 `latestVersion` 與目前 `APP_VERSION`
-  3. 若 GitHub 版本較新，自動解除 Service Worker 註冊
-  4. 自動清除 Cache Storage
-  5. 保留 localStorage 中的 OAuth Client ID、Folder ID、GitHub version.json URL
-  6. 自動重新載入頁面，以取得 GitHub Pages 上已部署的新檔案
-
-## 重要限制
-
-GitHub Pages 是靜態網站，瀏覽器端無法自行修改 GitHub repository 檔案。
-所謂「自動更新」是指：GitHub Pages 已經部署新版後，使用者端自動清除舊 PWA 快取並重新載入新版檔案。
-
-## GitHub version.json URL 範例
-
-GitHub Pages：
-
-```text
-https://你的帳號.github.io/你的repo/version.json
-```
-
-GitHub Raw：
-
-```text
-https://raw.githubusercontent.com/你的帳號/你的repo/main/version.json
-```
-
-## 發布新版本時需要同步更新
-
-1. `config.js`
-
-```javascript
-APP_VERSION: "V0.5"
-```
-
-2. `version.json`
-
-```json
-{
-  "latestVersion": "V0.5",
-  "releaseDate": "2026-06-02",
-  "releaseNote": "你的更新說明",
-  "forceReload": true
-}
-```
-
-3. `sw.js`
-
-```javascript
-const CACHE_NAME = "drive-pwa-file-manager-v0.5-20260602";
-```
-
-4. ZIP 檔名
-
-```text
-GoogleDrivePWA-V0.5-YYYYMMDD.zip
-```
+- 程式版本與 ZIP 檔案版本一致：`V0.5`。
+- 支援一次選擇多個檔案上傳。
+- 多檔上傳採逐一上傳，降低大量檔案或大檔造成的瀏覽器與 API 負載。
+- 單一檔案限制維持 1GB；超過限制的檔案會略過，不中斷其他檔案。
+- 顯示已選擇檔案數量、總大小與上傳進度。
+- 上傳完成後顯示成功、失敗、略過統計。
+- 新增「記住登入狀態」，重新整理或重啟頁面後會自動嘗試重新取得 Google access token。
+- 不會把 access token 或 refresh token 寫入 localStorage。
 
 ## 使用者資料儲存位置
 
@@ -75,5 +18,9 @@ GoogleDrivePWA-V0.5-YYYYMMDD.zip
 - Google OAuth Client ID
 - Google Drive Folder ID
 - GitHub version.json URL
+- 是否記住登入狀態
+- 上次登入 email 與時間
 
-`config.js`、`app.js`、`version.json` 不保存任何使用者資料。
+## 重要限制
+
+基於 Google OAuth 安全限制，頁面重啟後仍需重新取得 access token。V0.5 的「記住登入狀態」會在 Google session 有效時自動嘗試靜默取得 token；若 Google session 過期、使用者登出 Google、瀏覽器阻擋登入流程，仍需手動登入。

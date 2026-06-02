@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V0.4",
+  "latestVersion": "V0.5",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V0.4：程式版本與 ZIP 版本一致；支援 GitHub version.json 版本比對；偵測新版後自動清除 PWA 快取並重新載入。",
+  "releaseNote": "V0.5：新增多檔逐一上傳、上傳進度與記住登入狀態自動嘗試重新登入。",
   "forceReload": true
 }
