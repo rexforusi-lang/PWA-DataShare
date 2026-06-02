@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V0.6",
+  "latestVersion": "V0.7",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V0.6：新增批次勾選刪除、正式 PWA icons、手機卡片式介面與權限提示。",
+  "releaseNote": "V0.7：刪除預設移到垃圾桶、加入 capabilities、sessionStorage 恢復登入。",
   "forceReload": true
 }
