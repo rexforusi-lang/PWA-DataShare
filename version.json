@@ -1,5 +1,6 @@
 {
-  "latestVersion": "1.0.1",
+  "latestVersion": "V0.4",
   "releaseDate": "2026-06-02",
-  "releaseNote": "新增 version.json 版本檢查來源，Settings 檢查更新會動態讀取最新版資訊，並避免 Service Worker 快取。"
+  "releaseNote": "V0.4：程式版本與 ZIP 版本一致；支援 GitHub version.json 版本比對；偵測新版後自動清除 PWA 快取並重新載入。",
+  "forceReload": true
 }

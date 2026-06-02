@@ -39,7 +39,7 @@
       <div class="toolbar">
         <div>
           <h2>檔案列表</h2>
-          <p class="hint">支援上傳、下載、修改檔名與刪除。OAuth Client ID 與 Folder ID 均儲存在使用者本機 localStorage。</p>
+          <p class="hint">支援上傳、下載、修改檔名與刪除。OAuth Client ID、Folder ID 與 GitHub 版本檢查 URL 均儲存在使用者本機 localStorage。</p>
         </div>
         <div class="toolbar-actions">
           <input id="fileInput" type="file" />
@@ -72,16 +72,32 @@
     <section id="settingsTab" class="tab-content">
       <div class="settings-card">
         <h2>Settings</h2>
-        <p class="hint">本頁設定只會儲存在目前瀏覽器的 localStorage，不會寫入程式碼或上傳到伺服器。</p>
+        <p class="hint">本頁使用者設定只會儲存在目前瀏覽器的 localStorage，不會寫入程式碼或上傳到伺服器。</p>
+
+        <div class="version-grid">
+          <div class="form-group">
+            <label>目前執行版本</label>
+            <input id="currentVersion" type="text" readonly />
+          </div>
+          <div class="form-group">
+            <label>本機 PWA Cache 版本</label>
+            <input id="cacheVersion" type="text" readonly />
+          </div>
+          <div class="form-group">
+            <label>GitHub 最新版本</label>
+            <input id="githubLatestVersion" type="text" readonly placeholder="尚未檢查" />
+          </div>
+        </div>
 
         <div class="form-group">
-          <label>目前版本</label>
-          <input id="currentVersion" type="text" readonly />
+          <label for="versionUrlInput">GitHub version.json URL</label>
+          <input id="versionUrlInput" type="text" placeholder="例如：https://你的帳號.github.io/你的repo/version.json" autocomplete="off" />
+          <p class="hint">可填 GitHub Pages 的 version.json URL，或 raw.githubusercontent.com 的 version.json URL。此資料只存於本機 localStorage。</p>
         </div>
 
         <div class="form-group">
           <label>版本更新檢查</label>
-          <button id="checkUpdateBtn" class="btn secondary">檢查更新</button>
+          <button id="checkUpdateBtn" class="btn secondary">檢查更新並自動套用</button>
           <div id="updateResult" class="update-result hint"></div>
         </div>
 

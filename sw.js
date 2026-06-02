@@ -1,8 +1,8 @@
 /**
  * Basic Service Worker for PWA
- * Cache version should be updated when app files change.
+ * Version: V0.4
  */
-const CACHE_NAME = "drive-pwa-file-manager-v0.3-20260602";
+const CACHE_NAME = "drive-pwa-file-manager-v0.4-20260602";
 const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./config.js", "./manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -21,7 +21,7 @@ self.addEventListener("fetch", (event) => {
   // Google API 不快取，避免授權與資料同步問題。
   if (requestUrl.hostname.includes("googleapis.com") || requestUrl.hostname.includes("google.com")) return;
 
-  // version.json 不快取，讓 Settings 的檢查更新可取得最新版本資訊。
+  // version.json 不快取，讓 Settings 的檢查更新可取得 GitHub 最新版本資訊。
   if (requestUrl.pathname.endsWith("/version.json") || requestUrl.pathname.endsWith("version.json")) return;
 
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).catch(() => {

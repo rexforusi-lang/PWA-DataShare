@@ -1,32 +1,72 @@
-# GoogleDrivePWA V0.3
+# GoogleDrivePWA V0.4
 
 Google Drive PWA File Manager，可部署於 GitHub Pages。
 
-## V0.3 更新重點
+## V0.4 更新重點
 
-- 新增 `version.json` 作為版本檢查來源。
-- Settings 的「檢查更新」改為真正讀取 `version.json`。
-- 加入 cache busting，避免讀到舊版快取。
-- Service Worker 排除 `version.json` 快取。
-- 檢查更新結果會顯示目前版本、最新版、發布日期與更新說明。
+- 程式版本 `APP_VERSION` 改為與 ZIP 檔版本一致，例如 `V0.4`。
+- Settings 顯示：
+  - 目前執行版本
+  - 本機 PWA Cache 版本
+  - GitHub 最新版本
+- Settings 新增 `GitHub version.json URL`，儲存在使用者本機 localStorage。
+- 按下「檢查更新並自動套用」後，程式會：
+  1. 讀取 GitHub 上的 `version.json`
+  2. 比對 `latestVersion` 與目前 `APP_VERSION`
+  3. 若 GitHub 版本較新，自動解除 Service Worker 註冊
+  4. 自動清除 Cache Storage
+  5. 保留 localStorage 中的 OAuth Client ID、Folder ID、GitHub version.json URL
+  6. 自動重新載入頁面，以取得 GitHub Pages 上已部署的新檔案
 
-## 使用方式
+## 重要限制
 
-1. 部署到 GitHub Pages。
-2. 開啟頁面後進入 Settings。
-3. 輸入 Google OAuth Client ID。
-4. 輸入 Google Drive Folder ID。
-5. 點選「儲存設定到本機」。
-6. 回到 File Manager，點選「登入 Google」。
-7. 在 Settings 點選「檢查更新」讀取 `version.json`。
+GitHub Pages 是靜態網站，瀏覽器端無法自行修改 GitHub repository 檔案。
+所謂「自動更新」是指：GitHub Pages 已經部署新版後，使用者端自動清除舊 PWA 快取並重新載入新版檔案。
 
-## 如何發布新版本
+## GitHub version.json URL 範例
 
-1. 更新 `config.js` 的 `APP_VERSION`。
-2. 更新 `version.json` 的 `latestVersion`、`releaseDate`、`releaseNote`。
-3. 更新 `sw.js` 的 `CACHE_NAME`。
-4. 將所有檔案部署到 GitHub Pages。
-5. 使用者端建議清除舊 Service Worker 或重新整理頁面。
+GitHub Pages：
+
+```text
+https://你的帳號.github.io/你的repo/version.json
+```
+
+GitHub Raw：
+
+```text
+https://raw.githubusercontent.com/你的帳號/你的repo/main/version.json
+```
+
+## 發布新版本時需要同步更新
+
+1. `config.js`
+
+```javascript
+APP_VERSION: "V0.5"
+```
+
+2. `version.json`
+
+```json
+{
+  "latestVersion": "V0.5",
+  "releaseDate": "2026-06-02",
+  "releaseNote": "你的更新說明",
+  "forceReload": true
+}
+```
+
+3. `sw.js`
+
+```javascript
+const CACHE_NAME = "drive-pwa-file-manager-v0.5-20260602";
+```
+
+4. ZIP 檔名
+
+```text
+GoogleDrivePWA-V0.5-YYYYMMDD.zip
+```
 
 ## 使用者資料儲存位置
 
@@ -34,5 +74,6 @@ Google Drive PWA File Manager，可部署於 GitHub Pages。
 
 - Google OAuth Client ID
 - Google Drive Folder ID
+- GitHub version.json URL
 
 `config.js`、`app.js`、`version.json` 不保存任何使用者資料。

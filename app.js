@@ -1,10 +1,18 @@
 /**
  * Google Drive PWA File Manager
  * Program: GoogleDrivePWA
- * Version: V0.3
+ * Version: V0.4
  * Date: 2026-06-02
  *
  * Version log:
+ * V0.4 - 2026-06-02
+ * - 程式 APP_VERSION 改為與 ZIP 檔版本一致，例如 V0.4。
+ * - Settings 新增 GitHub version.json URL 設定，儲存在 localStorage。
+ * - 頁面顯示目前執行版本、本機 PWA Cache 版本、GitHub 最新版本。
+ * - 檢查更新改為讀取 GitHub 上的 version.json，並支援 V0.x 格式版本比對。
+ * - 若偵測到新版，自動清除 Service Worker 與 Cache Storage，保留 localStorage 使用者設定。
+ * - 自動重新載入頁面，以載入 GitHub Pages 上已部署的新版本。
+ *
  * V0.3 - 2026-06-02
  * - 新增 version.json 作為遠端版本資訊來源。
  * - Settings「檢查更新」改為 fetch version.json，不再只比對 config.js 內的固定值。
@@ -17,17 +25,16 @@
  * - OAuth Client ID 與 Google Drive Folder ID 均改由使用者於頁面輸入，並儲存在 localStorage。
  * - config.js 不再保存任何使用者資料或 OAuth Client ID。
  * - 新增清除本機設定功能。
- * - OAuth 初始化前會檢查 Client ID，避免 invalid_client 類型錯誤難以排查。
  *
  * V0.1 - 2026-06-02
  * - 初版 Google Drive PWA File Manager。
- * - 支援登入、資料夾 ID、檔案列表、上傳、下載、改名、刪除與 PWA 基本快取。
  */
 const CONFIG = window.APP_CONFIG;
 
 const STORAGE_KEYS = {
   FOLDER_ID: "drive_pwa_folder_id",
-  GOOGLE_CLIENT_ID: "drive_pwa_google_client_id"
+  GOOGLE_CLIENT_ID: "drive_pwa_google_client_id",
+  VERSION_CHECK_URL: "drive_pwa_version_check_url"
 };
 
 let tokenClient = null;
@@ -47,9 +54,12 @@ const fileTableBody = document.getElementById("fileTableBody");
 const messageBox = document.getElementById("messageBox");
 const clientIdInput = document.getElementById("clientIdInput");
 const folderIdInput = document.getElementById("folderIdInput");
+const versionUrlInput = document.getElementById("versionUrlInput");
 const saveSettingsBtn = document.getElementById("saveSettingsBtn");
 const clearSettingsBtn = document.getElementById("clearSettingsBtn");
 const currentVersion = document.getElementById("currentVersion");
+const cacheVersion = document.getElementById("cacheVersion");
+const githubLatestVersion = document.getElementById("githubLatestVersion");
 const checkUpdateBtn = document.getElementById("checkUpdateBtn");
 const updateResult = document.getElementById("updateResult");
 
@@ -164,12 +174,10 @@ function signOut() {
 
   accessToken = null;
   currentUserEmail = "";
-
   loginBtn.classList.remove("hidden");
   logoutBtn.classList.add("hidden");
   loginStatus.textContent = "尚未登入";
   fileTableBody.innerHTML = `<tr><td colspan="6" class="empty">請先登入</td></tr>`;
-
   showMessage("已登出。", "success");
 }
 
@@ -178,9 +186,7 @@ async function loadUserProfile() {
     const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-
     if (!res.ok) return;
-
     const data = await res.json();
     currentUserEmail = data.email || "";
   } catch {
@@ -196,9 +202,14 @@ function getFolderId() {
   return localStorage.getItem(STORAGE_KEYS.FOLDER_ID) || "";
 }
 
+function getVersionCheckUrl() {
+  return localStorage.getItem(STORAGE_KEYS.VERSION_CHECK_URL) || CONFIG.DEFAULT_VERSION_CHECK_URL || "./version.json";
+}
+
 function saveSettings() {
   const clientId = clientIdInput.value.trim();
   const folderId = folderIdInput.value.trim();
+  const versionUrl = versionUrlInput.value.trim() || CONFIG.DEFAULT_VERSION_CHECK_URL;
 
   if (!clientId) {
     showMessage("請輸入 Google OAuth Client ID。", "error");
@@ -215,9 +226,15 @@ function saveSettings() {
     return;
   }
 
+  if (!versionUrl) {
+    showMessage("請輸入 GitHub version.json URL，或保留預設 ./version.json。", "error");
+    return;
+  }
+
   const previousClientId = getGoogleClientId();
   localStorage.setItem(STORAGE_KEYS.GOOGLE_CLIENT_ID, clientId);
   localStorage.setItem(STORAGE_KEYS.FOLDER_ID, folderId);
+  localStorage.setItem(STORAGE_KEYS.VERSION_CHECK_URL, versionUrl);
 
   updateClientIdStatus();
   updateFolderStatus();
@@ -239,14 +256,17 @@ function saveSettings() {
 }
 
 function clearLocalSettings() {
-  const confirmed = confirm("確定要清除本機儲存的 OAuth Client ID 與 Folder ID 嗎？清除後需要重新設定。");
+  const confirmed = confirm("確定要清除本機儲存的 OAuth Client ID、Folder ID 與 GitHub version.json URL 嗎？清除後需要重新設定。");
   if (!confirmed) return;
 
   localStorage.removeItem(STORAGE_KEYS.GOOGLE_CLIENT_ID);
   localStorage.removeItem(STORAGE_KEYS.FOLDER_ID);
+  localStorage.removeItem(STORAGE_KEYS.VERSION_CHECK_URL);
 
   clientIdInput.value = "";
   folderIdInput.value = "";
+  versionUrlInput.value = CONFIG.DEFAULT_VERSION_CHECK_URL;
+  githubLatestVersion.value = "尚未檢查";
   tokenClient = null;
   accessToken = null;
   initializedClientId = "";
@@ -259,14 +279,16 @@ function clearLocalSettings() {
   updateClientIdStatus();
   updateFolderStatus();
   fileTableBody.innerHTML = `<tr><td colspan="6" class="empty">請先到 Settings 設定 OAuth Client ID 與資料夾 ID。</td></tr>`;
-
   showMessage("本機設定已清除。", "success");
 }
 
 function initSettings() {
   currentVersion.value = CONFIG.APP_VERSION;
+  cacheVersion.value = CONFIG.CACHE_NAME;
+  githubLatestVersion.value = "尚未檢查";
   clientIdInput.value = getGoogleClientId();
   folderIdInput.value = getFolderId();
+  versionUrlInput.value = getVersionCheckUrl();
 }
 
 function updateClientIdStatus() {
@@ -284,41 +306,72 @@ async function checkForUpdates() {
   checkUpdateBtn.disabled = true;
   checkUpdateBtn.textContent = "檢查中...";
   updateResult.className = "update-result hint";
-  updateResult.innerHTML = "正在取得最新版本資訊...";
+  updateResult.innerHTML = "正在檢查 GitHub 版本...";
 
   try {
-    const versionUrl = `${CONFIG.VERSION_CHECK_URL}?t=${Date.now()}`;
+    const versionUrl = buildCacheBustingUrl(getVersionCheckUrl());
     const res = await fetch(versionUrl, {
       cache: "no-store",
       headers: { "Cache-Control": "no-cache" }
     });
 
-    if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
-    }
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
     const info = await res.json();
     validateVersionInfo(info);
+
+    githubLatestVersion.value = info.latestVersion;
 
     const compareResult = compareVersions(info.latestVersion, CONFIG.APP_VERSION);
     const hasUpdate = compareResult > 0;
 
     updateResult.className = `update-result ${hasUpdate ? "update-available" : "up-to-date"}`;
     updateResult.innerHTML = `
-      <div><strong>${hasUpdate ? "發現新版本" : "目前已是最新版本"}</strong></div>
-      <div>目前版本：${escapeHtml(CONFIG.APP_VERSION)}</div>
-      <div>最新版：${escapeHtml(info.latestVersion)}</div>
+      <div><strong>${hasUpdate ? "發現新版本，準備自動更新" : "目前已是最新版本"}</strong></div>
+      <div>目前執行版本：${escapeHtml(CONFIG.APP_VERSION)}</div>
+      <div>GitHub 最新版本：${escapeHtml(info.latestVersion)}</div>
       <div>發布日期：${escapeHtml(info.releaseDate || "-")}</div>
       <div>更新說明：${escapeHtml(info.releaseNote || "-")}</div>
-      ${hasUpdate ? "<div class=\"hint\">請更新 GitHub Pages 上的專案檔案後，清除瀏覽器快取或重新載入頁面。</div>" : ""}
     `;
+
+    if (hasUpdate) {
+      updateResult.innerHTML += `<div class="hint">正在清除本機 PWA 快取並重新載入 GitHub Pages 最新檔案，localStorage 設定會保留。</div>`;
+      await delay(800);
+      await applyPwaUpdate();
+    }
   } catch (error) {
     updateResult.className = "update-result update-error";
-    updateResult.innerHTML = `檢查更新失敗：${escapeHtml(error.message)}<br />請確認 version.json 是否已部署，並清除 Service Worker 快取後重試。`;
+    updateResult.innerHTML = `檢查更新失敗：${escapeHtml(error.message)}<br />請確認 GitHub version.json URL 是否正確、檔案是否已部署，並確認網路連線。`;
   } finally {
     checkUpdateBtn.disabled = false;
     checkUpdateBtn.textContent = previousText;
   }
+}
+
+async function applyPwaUpdate() {
+  updateResult.className = "update-result update-available";
+  updateResult.innerHTML += `<div>正在解除 Service Worker 註冊...</div>`;
+
+  if ("serviceWorker" in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((registration) => registration.unregister()));
+  }
+
+  updateResult.innerHTML += `<div>正在清除 Cache Storage...</div>`;
+
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
+  }
+
+  updateResult.innerHTML += `<div>正在重新載入新版...</div>`;
+  await delay(500);
+  window.location.reload();
+}
+
+function buildCacheBustingUrl(url) {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}t=${Date.now()}`;
 }
 
 function validateVersionInfo(info) {
@@ -330,9 +383,13 @@ function validateVersionInfo(info) {
   }
 }
 
+function normalizeVersion(version) {
+  return String(version).trim().replace(/^v/i, "");
+}
+
 function compareVersions(a, b) {
-  const pa = String(a).split(".").map((n) => Number.parseInt(n, 10) || 0);
-  const pb = String(b).split(".").map((n) => Number.parseInt(n, 10) || 0);
+  const pa = normalizeVersion(a).split(".").map((n) => Number.parseInt(n, 10) || 0);
+  const pb = normalizeVersion(b).split(".").map((n) => Number.parseInt(n, 10) || 0);
   const len = Math.max(pa.length, pb.length);
 
   for (let i = 0; i < len; i++) {
@@ -342,6 +399,10 @@ function compareVersions(a, b) {
     if (na < nb) return -1;
   }
   return 0;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function listFiles() {
