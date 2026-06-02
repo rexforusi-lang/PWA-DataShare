@@ -1,27 +1,41 @@
-# Google Drive PWA File Manager
+# GoogleDrivePWA V0.2
 
-可部署於 GitHub Pages 的 Google Drive 檔案管理 PWA。
+Google Drive PWA File Manager，可部署於 GitHub Pages。
 
-## 使用前必做
+## V0.2 更新重點
 
-1. 到 Google Cloud Console 啟用 Google Drive API。
-2. 建立 OAuth 2.0 Client ID，類型選 Web application。
-3. 在 Authorized JavaScript origins 加入你的 GitHub Pages origin，例如：
-   - `https://你的帳號.github.io`
-4. 修改 `config.js`：
-   - 將 `YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com` 換成你的 Client ID。
-5. 到 Google Drive 建立或選擇共享資料夾，將團隊成員設為 Editor。
-6. 開啟網頁後，在 Settings 輸入 Folder ID。
+- OAuth Client ID 改由 Settings 頁面輸入。
+- Google Drive Folder ID 改由 Settings 頁面輸入。
+- 所有設定資料均儲存在使用者本機瀏覽器 localStorage。
+- `config.js` 不保存 OAuth Client ID、Folder ID 或任何使用者資料。
+- 新增清除本機設定功能。
 
-## 檔案
+## 使用方式
 
-- `index.html`
-- `app.js`
-- `config.js`
-- `styles.css`
-- `sw.js`
-- `manifest.json`
+1. 部署到 GitHub Pages。
+2. 開啟頁面後進入 Settings。
+3. 輸入 Google OAuth Client ID。
+4. 輸入 Google Drive Folder ID。
+5. 點選「儲存設定到本機」。
+6. 回到 File Manager，點選「登入 Google」。
+
+## Google Cloud 必要設定
+
+OAuth Client 必須是 Web application 類型。
+Authorized JavaScript origins 請加入 GitHub Pages origin，例如：
+
+```text
+https://你的GitHub帳號.github.io
+```
+
+若本機測試，請加入實際 localhost origin，例如：
+
+```text
+http://localhost:5500
+http://127.0.0.1:5500
+```
 
 ## 注意
 
-此專案是純前端 OAuth 架構，不包含後端。所有 Drive 操作都以目前登入 Google 使用者的權限執行。
+本專案為純前端 PWA。所有 Drive 操作都以目前登入 Google 使用者的權限執行。
+多人共用請透過 Google Drive 資料夾分享設定，將團隊成員設為 Editor。

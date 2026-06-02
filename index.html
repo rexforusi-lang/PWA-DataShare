@@ -26,6 +26,7 @@
   <main class="container">
     <section id="statusPanel" class="status-panel">
       <span id="loginStatus">尚未登入</span>
+      <span id="clientIdStatus">尚未設定 OAuth Client ID</span>
       <span id="folderStatus">尚未設定資料夾 ID</span>
     </section>
 
@@ -38,7 +39,7 @@
       <div class="toolbar">
         <div>
           <h2>檔案列表</h2>
-          <p class="hint">支援上傳、下載、修改檔名與刪除。</p>
+          <p class="hint">支援上傳、下載、修改檔名與刪除。所有設定資料均儲存在使用者本機 localStorage。</p>
         </div>
         <div class="toolbar-actions">
           <input id="fileInput" type="file" />
@@ -62,7 +63,7 @@
             </tr>
           </thead>
           <tbody id="fileTableBody">
-            <tr><td colspan="6" class="empty">請先登入並設定資料夾 ID</td></tr>
+            <tr><td colspan="6" class="empty">請先到 Settings 設定 OAuth Client ID 與資料夾 ID，並登入 Google。</td></tr>
           </tbody>
         </table>
       </div>
@@ -71,21 +72,35 @@
     <section id="settingsTab" class="tab-content">
       <div class="settings-card">
         <h2>Settings</h2>
+        <p class="hint">本頁設定只會儲存在目前瀏覽器的 localStorage，不會寫入程式碼或上傳到伺服器。</p>
+
         <div class="form-group">
           <label>目前版本</label>
           <input id="currentVersion" type="text" readonly />
         </div>
+
         <div class="form-group">
           <label>版本更新檢查</label>
           <button id="checkUpdateBtn" class="btn secondary">檢查更新</button>
           <p id="updateResult" class="hint"></p>
         </div>
+
+        <div class="form-group">
+          <label for="clientIdInput">Google OAuth Client ID</label>
+          <input id="clientIdInput" type="text" placeholder="例如：1234567890-xxxxx.apps.googleusercontent.com" autocomplete="off" />
+          <p class="hint">請輸入 Google Cloud Console 建立的 OAuth 2.0 Web application Client ID。此資料只存於本機 localStorage。</p>
+        </div>
+
         <div class="form-group">
           <label for="folderIdInput">Google Drive 目標資料夾 ID</label>
-          <input id="folderIdInput" type="text" placeholder="請輸入 Google Drive Folder ID" />
-          <p class="hint">Folder ID 可從 Google Drive 資料夾網址取得，例如：https://drive.google.com/drive/folders/<strong>FOLDER_ID</strong></p>
+          <input id="folderIdInput" type="text" placeholder="請輸入 Google Drive Folder ID" autocomplete="off" />
+          <p class="hint">Folder ID 可從 Google Drive 資料夾網址取得，例如：https://drive.google.com/drive/folders/<strong>FOLDER_ID</strong>。此資料只存於本機 localStorage。</p>
         </div>
-        <button id="saveSettingsBtn" class="btn primary">儲存設定</button>
+
+        <div class="settings-actions">
+          <button id="saveSettingsBtn" class="btn primary">儲存設定到本機</button>
+          <button id="clearSettingsBtn" class="btn danger">清除本機設定</button>
+        </div>
       </div>
     </section>
   </main>
