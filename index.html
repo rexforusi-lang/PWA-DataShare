@@ -6,6 +6,8 @@
   <title>Google Drive PWA File Manager</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
   <meta name="theme-color" content="#2563eb" />
   <meta name="description" content="Google Drive based PWA file manager" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -13,27 +15,33 @@
 </head>
 <body>
   <header class="app-header">
-    <div><h1>Drive File Manager</h1><p>Google Drive PWA 檔案管理工具</p></div>
+    <div class="brand">
+      <img src="./icons/icon-192.svg" alt="App Icon" class="brand-icon" />
+      <div><h1>Drive File Manager</h1><p>Google Drive PWA 檔案管理工具</p></div>
+    </div>
     <div class="header-actions">
       <button id="loginBtn" class="btn primary">登入 Google</button>
       <button id="logoutBtn" class="btn secondary hidden">登出</button>
     </div>
   </header>
+
   <main class="container">
-    <section id="statusPanel" class="status-panel">
+    <section class="status-panel">
       <span id="loginStatus">尚未登入</span>
       <span id="clientIdStatus">尚未設定 OAuth Client ID</span>
       <span id="folderStatus">尚未設定資料夾 ID</span>
     </section>
+
     <nav class="tabs">
       <button class="tab active" data-tab="files">File Manager</button>
       <button class="tab" data-tab="settings">Settings</button>
     </nav>
+
     <section id="filesTab" class="tab-content active">
       <div class="toolbar">
         <div>
           <h2>檔案列表</h2>
-          <p class="hint">支援多檔上傳、下載、修改檔名與刪除。</p>
+          <p class="hint">支援多檔上傳、下載、改名、單筆刪除與批次刪除。改名與刪除權限由 Google Drive 分享權限決定，不限定上傳者。</p>
         </div>
         <div class="toolbar-actions">
           <input id="fileInput" type="file" multiple />
@@ -41,56 +49,52 @@
           <button id="refreshBtn" class="btn secondary">重新整理</button>
         </div>
       </div>
-      <div id="uploadInfo" class="upload-info hidden">
-        <div id="selectedFileInfo">尚未選擇檔案</div>
-        <div id="uploadProgressText"></div>
-        <progress id="uploadProgressBar" value="0" max="100"></progress>
+
+      <div id="batchActionBar" class="batch-bar hidden">
+        <span id="selectedCountText">已選取 0 個檔案</span>
+        <button id="batchDeleteBtn" class="btn danger">批次刪除</button>
+        <button id="clearSelectionBtn" class="btn secondary">取消選取</button>
       </div>
+
+      <div id="operationInfo" class="upload-info hidden">
+        <div id="selectedFileInfo">尚未選擇檔案</div>
+        <div id="operationProgressText"></div>
+        <progress id="operationProgressBar" value="0" max="100"></progress>
+      </div>
+
       <div id="messageBox" class="message hidden"></div>
-      <div class="table-wrap">
+
+      <div class="desktop-table table-wrap">
         <table>
-          <thead><tr><th>檔案名稱</th><th>檔案大小</th><th>副檔名</th><th>上傳者</th><th>上傳時間</th><th>操作</th></tr></thead>
-          <tbody id="fileTableBody"><tr><td colspan="6" class="empty">請先到 Settings 設定 OAuth Client ID 與資料夾 ID，並登入 Google。</td></tr></tbody>
+          <thead>
+            <tr>
+              <th class="select-col"><input id="selectAllFilesCheckbox" type="checkbox" aria-label="全選檔案" /></th>
+              <th>檔案名稱</th><th>檔案大小</th><th>副檔名</th><th>上傳者</th><th>上傳時間</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="fileTableBody"><tr><td colspan="7" class="empty">請先到 Settings 設定 OAuth Client ID 與資料夾 ID，並登入 Google。</td></tr></tbody>
         </table>
       </div>
+
+      <div id="mobileFileList" class="mobile-card-list"></div>
     </section>
+
     <section id="settingsTab" class="tab-content">
       <div class="settings-card">
         <h2>Settings</h2>
-        <p class="hint">本頁使用者設定只會儲存在目前瀏覽器的 localStorage，不會寫入程式碼或上傳到伺服器。</p>
+        <p class="hint">使用者設定只會儲存在目前瀏覽器 localStorage，不會寫入程式碼或上傳到伺服器。</p>
+        <div class="permission-note">改名 / 刪除 / 批次刪除不檢查上傳者，會直接依 Google Drive 對目前登入帳號授予的權限執行。</div>
         <div class="version-grid">
           <div class="form-group"><label>目前執行版本</label><input id="currentVersion" type="text" readonly /></div>
-          <div class="form-group"><label>本機 PWA Cache 版本</label><input id="cacheVersion" type="text" readonly /></div>
+          <div class="form-group"><label>PWA Cache 版本</label><input id="cacheVersion" type="text" readonly /></div>
           <div class="form-group"><label>GitHub 最新版本</label><input id="githubLatestVersion" type="text" readonly placeholder="尚未檢查" /></div>
         </div>
-        <div class="form-group">
-          <label for="versionUrlInput">GitHub version.json URL</label>
-          <input id="versionUrlInput" type="text" placeholder="例如：https://你的帳號.github.io/你的repo/version.json" autocomplete="off" />
-          <p class="hint">可填 GitHub Pages 或 raw.githubusercontent.com 的 version.json URL。此資料只存於本機 localStorage。</p>
-        </div>
-        <div class="form-group">
-          <label>版本更新檢查</label>
-          <button id="checkUpdateBtn" class="btn secondary">檢查更新並自動套用</button>
-          <div id="updateResult" class="update-result hint"></div>
-        </div>
-        <div class="form-group">
-          <label class="checkbox-label"><input id="rememberLoginInput" type="checkbox" /> 記住登入狀態，頁面重新開啟時自動嘗試登入</label>
-          <p id="lastLoginInfo" class="hint"></p>
-        </div>
-        <div class="form-group">
-          <label for="clientIdInput">Google OAuth Client ID</label>
-          <input id="clientIdInput" type="text" placeholder="例如：1234567890-xxxxx.apps.googleusercontent.com" autocomplete="off" />
-          <p class="hint">請輸入 Google Cloud Console 建立的 OAuth 2.0 Web application Client ID。此資料只存於本機 localStorage。</p>
-        </div>
-        <div class="form-group">
-          <label for="folderIdInput">Google Drive 目標資料夾 ID</label>
-          <input id="folderIdInput" type="text" placeholder="請輸入 Google Drive Folder ID" autocomplete="off" />
-          <p class="hint">Folder ID 可從 Google Drive 資料夾網址取得。此資料只存於本機 localStorage。</p>
-        </div>
-        <div class="settings-actions">
-          <button id="saveSettingsBtn" class="btn primary">儲存設定到本機</button>
-          <button id="clearSettingsBtn" class="btn danger">清除本機設定</button>
-        </div>
+        <div class="form-group"><label for="versionUrlInput">GitHub version.json URL</label><input id="versionUrlInput" type="text" placeholder="https://你的帳號.github.io/你的repo/version.json" autocomplete="off" /></div>
+        <div class="form-group"><label>版本更新檢查</label><button id="checkUpdateBtn" class="btn secondary">檢查更新並自動套用</button><div id="updateResult" class="update-result hint"></div></div>
+        <div class="form-group"><label class="checkbox-label"><input id="rememberLoginInput" type="checkbox" /> 記住登入狀態，重新開啟時自動嘗試登入</label><p id="lastLoginInfo" class="hint"></p></div>
+        <div class="form-group"><label for="clientIdInput">Google OAuth Client ID</label><input id="clientIdInput" type="text" placeholder="1234567890-xxxxx.apps.googleusercontent.com" autocomplete="off" /></div>
+        <div class="form-group"><label for="folderIdInput">Google Drive 目標資料夾 ID</label><input id="folderIdInput" type="text" placeholder="請輸入 Google Drive Folder ID" autocomplete="off" /></div>
+        <div class="settings-actions"><button id="saveSettingsBtn" class="btn primary">儲存設定到本機</button><button id="clearSettingsBtn" class="btn danger">清除本機設定</button></div>
       </div>
     </section>
   </main>

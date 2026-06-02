@@ -1,26 +1,20 @@
-# GoogleDrivePWA V0.5
+# GoogleDrivePWA V0.6
 
-## V0.5 更新重點
+## V0.6 更新重點
 
-- 程式版本與 ZIP 檔案版本一致：`V0.5`。
-- 支援一次選擇多個檔案上傳。
-- 多檔上傳採逐一上傳，降低大量檔案或大檔造成的瀏覽器與 API 負載。
-- 單一檔案限制維持 1GB；超過限制的檔案會略過，不中斷其他檔案。
-- 顯示已選擇檔案數量、總大小與上傳進度。
-- 上傳完成後顯示成功、失敗、略過統計。
-- 新增「記住登入狀態」，重新整理或重啟頁面後會自動嘗試重新取得 Google access token。
-- 不會把 access token 或 refresh token 寫入 localStorage。
+- 程式版本與 ZIP 檔案版本一致：`V0.6`。
+- 改名與刪除不限制上傳者，改由 Google Drive 權限決定。
+- 新增檔案 checkbox、全選 checkbox、批次刪除、取消選取。
+- 批次刪除採逐一刪除，單筆失敗不中斷其他檔案。
+- 新增批次刪除進度與結果摘要。
+- 新增正式 PWA icons：`icons/icon-192.svg`、`icons/icon-512.svg`、`icons/maskable-icon.svg`。
+- `manifest.json` 改用正式 icons 路徑。
+- 手機版檔案列表改為卡片式 UI，操作按鈕更大、更易閱讀。
+
+## 權限說明
+
+刪除與改名權限由 Google Drive 分享權限決定。只要目前登入者對目標資料夾或檔案有足夠權限，即可操作，不限定檔案上傳者。
 
 ## 使用者資料儲存位置
 
-以下資料只儲存在使用者本機瀏覽器 localStorage：
-
-- Google OAuth Client ID
-- Google Drive Folder ID
-- GitHub version.json URL
-- 是否記住登入狀態
-- 上次登入 email 與時間
-
-## 重要限制
-
-基於 Google OAuth 安全限制，頁面重啟後仍需重新取得 access token。V0.5 的「記住登入狀態」會在 Google session 有效時自動嘗試靜默取得 token；若 Google session 過期、使用者登出 Google、瀏覽器阻擋登入流程，仍需手動登入。
+以下資料只儲存在使用者本機瀏覽器 localStorage：OAuth Client ID、Folder ID、GitHub version.json URL、登入記憶狀態。

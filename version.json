@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V0.5",
+  "latestVersion": "V0.6",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V0.5：新增多檔逐一上傳、上傳進度與記住登入狀態自動嘗試重新登入。",
+  "releaseNote": "V0.6：新增批次勾選刪除、正式 PWA icons、手機卡片式介面與權限提示。",
   "forceReload": true
 }
