@@ -39,7 +39,7 @@
       <div class="toolbar">
         <div>
           <h2>檔案列表</h2>
-          <p class="hint">支援上傳、下載、修改檔名與刪除。所有設定資料均儲存在使用者本機 localStorage。</p>
+          <p class="hint">支援上傳、下載、修改檔名與刪除。OAuth Client ID 與 Folder ID 均儲存在使用者本機 localStorage。</p>
         </div>
         <div class="toolbar-actions">
           <input id="fileInput" type="file" />
@@ -82,7 +82,7 @@
         <div class="form-group">
           <label>版本更新檢查</label>
           <button id="checkUpdateBtn" class="btn secondary">檢查更新</button>
-          <p id="updateResult" class="hint"></p>
+          <div id="updateResult" class="update-result hint"></div>
         </div>
 
         <div class="form-group">

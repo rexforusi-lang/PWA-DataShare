@@ -1,10 +1,17 @@
 /**
  * Google Drive PWA File Manager
  * Program: GoogleDrivePWA
- * Version: V0.2
+ * Version: V0.3
  * Date: 2026-06-02
  *
  * Version log:
+ * V0.3 - 2026-06-02
+ * - 新增 version.json 作為遠端版本資訊來源。
+ * - Settings「檢查更新」改為 fetch version.json，不再只比對 config.js 內的固定值。
+ * - 加入 cache busting，避免 GitHub Pages 或 Service Worker 回傳舊版 version.json。
+ * - Service Worker 排除 version.json 快取。
+ * - 檢查更新結果會顯示目前版本、最新版、發布日期與更新說明。
+ *
  * V0.2 - 2026-06-02
  * - Settings 新增 Google OAuth Client ID 輸入欄位。
  * - OAuth Client ID 與 Google Drive Folder ID 均改由使用者於頁面輸入，並儲存在 localStorage。
@@ -272,10 +279,69 @@ function updateFolderStatus() {
   folderStatus.textContent = folderId ? `目前資料夾 ID：${folderId}` : "尚未設定資料夾 ID";
 }
 
-function checkForUpdates() {
-  updateResult.textContent = CONFIG.APP_VERSION === CONFIG.LATEST_VERSION
-    ? `目前已是最新版本：${CONFIG.APP_VERSION}`
-    : `發現新版本：${CONFIG.LATEST_VERSION}，目前版本：${CONFIG.APP_VERSION}`;
+async function checkForUpdates() {
+  const previousText = checkUpdateBtn.textContent;
+  checkUpdateBtn.disabled = true;
+  checkUpdateBtn.textContent = "檢查中...";
+  updateResult.className = "update-result hint";
+  updateResult.innerHTML = "正在取得最新版本資訊...";
+
+  try {
+    const versionUrl = `${CONFIG.VERSION_CHECK_URL}?t=${Date.now()}`;
+    const res = await fetch(versionUrl, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" }
+    });
+
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+
+    const info = await res.json();
+    validateVersionInfo(info);
+
+    const compareResult = compareVersions(info.latestVersion, CONFIG.APP_VERSION);
+    const hasUpdate = compareResult > 0;
+
+    updateResult.className = `update-result ${hasUpdate ? "update-available" : "up-to-date"}`;
+    updateResult.innerHTML = `
+      <div><strong>${hasUpdate ? "發現新版本" : "目前已是最新版本"}</strong></div>
+      <div>目前版本：${escapeHtml(CONFIG.APP_VERSION)}</div>
+      <div>最新版：${escapeHtml(info.latestVersion)}</div>
+      <div>發布日期：${escapeHtml(info.releaseDate || "-")}</div>
+      <div>更新說明：${escapeHtml(info.releaseNote || "-")}</div>
+      ${hasUpdate ? "<div class=\"hint\">請更新 GitHub Pages 上的專案檔案後，清除瀏覽器快取或重新載入頁面。</div>" : ""}
+    `;
+  } catch (error) {
+    updateResult.className = "update-result update-error";
+    updateResult.innerHTML = `檢查更新失敗：${escapeHtml(error.message)}<br />請確認 version.json 是否已部署，並清除 Service Worker 快取後重試。`;
+  } finally {
+    checkUpdateBtn.disabled = false;
+    checkUpdateBtn.textContent = previousText;
+  }
+}
+
+function validateVersionInfo(info) {
+  if (!info || typeof info !== "object") {
+    throw new Error("version.json 格式錯誤。應為 JSON 物件。");
+  }
+  if (!info.latestVersion) {
+    throw new Error("version.json 缺少 latestVersion 欄位。");
+  }
+}
+
+function compareVersions(a, b) {
+  const pa = String(a).split(".").map((n) => Number.parseInt(n, 10) || 0);
+  const pb = String(b).split(".").map((n) => Number.parseInt(n, 10) || 0);
+  const len = Math.max(pa.length, pb.length);
+
+  for (let i = 0; i < len; i++) {
+    const na = pa[i] || 0;
+    const nb = pb[i] || 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
 }
 
 async function listFiles() {
