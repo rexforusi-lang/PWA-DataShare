@@ -1,1 +1,1 @@
-window.APP_CONFIG={APP_NAME:"Google Drive PWA File Manager",APP_VERSION:"V0.7",CACHE_NAME:"drive-pwa-file-manager-v0.7-20260602",DEFAULT_VERSION_CHECK_URL:"./version.json",SCOPES:"https://www.googleapis.com/auth/drive",MAX_FILE_SIZE_BYTES:1024*1024*1024};
+window.APP_CONFIG={APP_NAME:"Google Drive PWA File Manager",APP_VERSION:"V0.8",CACHE_NAME:"drive-pwa-file-manager-v0.8-20260602",DEFAULT_VERSION_CHECK_URL:"./version.json",SCOPES:"https://www.googleapis.com/auth/drive",MAX_FILE_SIZE_BYTES:1024*1024*1024};

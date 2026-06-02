@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V0.7",
+  "latestVersion": "V0.8",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V0.7：刪除預設移到垃圾桶、加入 capabilities、sessionStorage 恢復登入。",
+  "releaseNote": "V0.8：修正 popup_failed_to_open，新增恢復登入按鈕。",
   "forceReload": true
 }
