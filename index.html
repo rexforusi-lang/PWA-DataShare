@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Drive PWA File Manager</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="description" content="Google Drive based PWA file manager" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="./config.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Drive File Manager</h1>
+      <p>Google Drive PWA 檔案管理工具</p>
+    </div>
+    <div class="header-actions">
+      <button id="loginBtn" class="btn primary">登入 Google</button>
+      <button id="logoutBtn" class="btn secondary hidden">登出</button>
+    </div>
+  </header>
 
+  <main class="container">
+    <section id="statusPanel" class="status-panel">
+      <span id="loginStatus">尚未登入</span>
+      <span id="folderStatus">尚未設定資料夾 ID</span>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="files">File Manager</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </nav>
+
+    <section id="filesTab" class="tab-content active">
+      <div class="toolbar">
+        <div>
+          <h2>檔案列表</h2>
+          <p class="hint">支援上傳、下載、修改檔名與刪除。</p>
+        </div>
+        <div class="toolbar-actions">
+          <input id="fileInput" type="file" />
+          <button id="uploadBtn" class="btn primary">上傳檔案</button>
+          <button id="refreshBtn" class="btn secondary">重新整理</button>
+        </div>
+      </div>
+
+      <div id="messageBox" class="message hidden"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>檔案名稱</th>
+              <th>檔案大小</th>
+              <th>副檔名</th>
+              <th>上傳者</th>
+              <th>上傳時間</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="fileTableBody">
+            <tr><td colspan="6" class="empty">請先登入並設定資料夾 ID</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="settingsTab" class="tab-content">
+      <div class="settings-card">
+        <h2>Settings</h2>
+        <div class="form-group">
+          <label>目前版本</label>
+          <input id="currentVersion" type="text" readonly />
+        </div>
+        <div class="form-group">
+          <label>版本更新檢查</label>
+          <button id="checkUpdateBtn" class="btn secondary">檢查更新</button>
+          <p id="updateResult" class="hint"></p>
+        </div>
+        <div class="form-group">
+          <label for="folderIdInput">Google Drive 目標資料夾 ID</label>
+          <input id="folderIdInput" type="text" placeholder="請輸入 Google Drive Folder ID" />
+          <p class="hint">Folder ID 可從 Google Drive 資料夾網址取得，例如：https://drive.google.com/drive/folders/<strong>FOLDER_ID</strong></p>
+        </div>
+        <button id="saveSettingsBtn" class="btn primary">儲存設定</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer"><span>Google Drive PWA File Manager</span></footer>
+  <script src="./app.js"></script>
+</body>
+</html>

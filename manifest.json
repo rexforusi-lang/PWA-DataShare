@@ -1,0 +1,25 @@
+{
+  "name": "Google Drive PWA File Manager",
+  "short_name": "Drive Manager",
+  "description": "A Google Drive based PWA file manager for team file sharing.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%232563eb'/%3E%3Cpath d='M48 62h38l12 16h46v58a14 14 0 0 1-14 14H48a14 14 0 0 1-14-14V76a14 14 0 0 1 14-14z' fill='white'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%232563eb'/%3E%3Cpath d='M128 166h102l32 42h122v154a38 38 0 0 1-38 38H128a38 38 0 0 1-38-38V204a38 38 0 0 1 38-38z' fill='white'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
