@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V1.5",
+  "latestVersion": "V1.6",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V1.5：檔案列表新增編號與欄位排序功能。",
+  "releaseNote": "V1.6：更新檢查會自動清快取並重新載入；檢查更新移至系統狀態；儲存與清除設定改為浮動操作列。",
   "forceReload": true
 }
