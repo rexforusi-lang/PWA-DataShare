@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V0.8",
+  "latestVersion": "V0.9",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V0.8：修正 popup_failed_to_open，新增恢復登入按鈕。",
+  "releaseNote": "V0.9：新增免登入 Apps Script 上傳模式，前端不需保存 Folder ID 即可匿名上傳。",
   "forceReload": true
 }
