@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V1.7",
+  "latestVersion": "V1.8",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V1.7：將登入狀態、上傳模式與 Folder ID 狀態整合到藍色 Header，移除下方獨立狀態列。",
+  "releaseNote": "V1.8：修正檢查更新後仍停在舊版問題，加入核心資源版本參數與 pendingVersion 驗證。",
   "forceReload": true
 }

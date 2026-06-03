@@ -1,6 +1,8 @@
-# GoogleDrivePWA V1.7
+# GoogleDrivePWA V1.8
 
-- 將已登入狀態、上傳模式、Folder ID 狀態整合到藍色 Header 區塊內。
-- 移除 Header 下方獨立狀態列，提升頁面空間利用率。
-- 新增 Header 狀態 Badge 樣式。
-- 保留 `loginStatus`、`uploadModeStatus`、`folderStatus` ID，避免影響既有 JS 更新邏輯。
+- 修正檢查更新後重新載入仍停在舊版的問題。
+- `index.html` 內 `styles.css`、`config.js`、`app.js` 已加入版本參數。
+- Service Worker 註冊加入版本參數。
+- 更新後會跳轉至 `index.html?forceUpdate=版本號&t=timestamp`。
+- 新增 `pendingVersion` 更新驗證機制。
+- 避免 `forceReload=true` 造成無限重整。
