@@ -1,8 +1,7 @@
-# GoogleDrivePWA V1.8
+# GoogleDrivePWA V1.9
 
-- 修正檢查更新後重新載入仍停在舊版的問題。
-- `index.html` 內 `styles.css`、`config.js`、`app.js` 已加入版本參數。
-- Service Worker 註冊加入版本參數。
-- 更新後會跳轉至 `index.html?forceUpdate=版本號&t=timestamp`。
-- 新增 `pendingVersion` 更新驗證機制。
-- 避免 `forceReload=true` 造成無限重整。
+- 上傳狀態區塊移到已選檔案清單上方。
+- 上傳狀態區塊新增「上傳狀態」標題。
+- 免登入 Apps Script 模式的上傳者顯示由 Apps Script 改為 FreeUser。
+- 批次刪除加入刪除進度條與目前刪除檔名顯示。
+- 批次刪除期間停用批次刪除、取消選取與重新整理按鈕。

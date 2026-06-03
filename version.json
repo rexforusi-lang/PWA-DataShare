@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V1.8",
+  "latestVersion": "V1.9",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V1.8：修正檢查更新後仍停在舊版問題，加入核心資源版本參數與 pendingVersion 驗證。",
+  "releaseNote": "V1.9：上傳狀態移到檔案清單上方，FreeUser 顯示，批次刪除加入進度條。",
   "forceReload": true
 }
