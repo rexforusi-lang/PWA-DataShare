@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V1.3",
+  "latestVersion": "V1.5",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V1.3：優化檔案列表/上傳區塊，顯示選檔清單、移動上傳按鈕與重新整理按鈕。",
+  "releaseNote": "V1.5：檔案列表新增編號與欄位排序功能。",
   "forceReload": true
 }
