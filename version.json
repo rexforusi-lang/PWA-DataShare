@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V1.0",
+  "latestVersion": "V1.2",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V1.0：Settings 儲存狀態、免登入列表與下載、所有檔案類型上傳。",
+  "releaseNote": "V1.2：重整 Settings 頁面，依模式顯示欄位並移除 GitHub version.json URL 設定。",
   "forceReload": true
 }
