@@ -1,7 +1,6 @@
-# GoogleDrivePWA V1.2
+# GoogleDrivePWA V1.3
 
-- 重整 Settings 頁面資訊架構。
-- 將目前版本、GitHub 最新版本、上傳模式、登入狀態、Folder ID 狀態整合在系統狀態區塊。
-- 依上傳模式動態顯示 Google 登入模式欄位或免登入 Apps Script 欄位。
-- 移除 GitHub version.json URL 設定欄位，固定使用 ./version.json。
-- 保留刪除模式與記住登入狀態。
+- 選擇檔案後顯示檔案數量、總大小與完整檔案名稱清單。
+- 上傳按鈕移至已選檔案清單右側。
+- 上傳進度整合在檔案列表 / 上傳區塊內。
+- 重新整理按鈕移至檔案列表上方。

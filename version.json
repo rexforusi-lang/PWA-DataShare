@@ -1,6 +1,6 @@
 {
-  "latestVersion": "V1.2",
+  "latestVersion": "V1.3",
   "releaseDate": "2026-06-02",
-  "releaseNote": "V1.2：重整 Settings 頁面，依模式顯示欄位並移除 GitHub version.json URL 設定。",
+  "releaseNote": "V1.3：優化檔案列表/上傳區塊，顯示選檔清單、移動上傳按鈕與重新整理按鈕。",
   "forceReload": true
 }
